@@ -28,14 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend5 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea6 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend6 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea7 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend7 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea8 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend8 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             groupBox4 = new GroupBox();
             chkDesired1 = new CheckBox();
             chkActual1 = new CheckBox();
@@ -52,11 +52,12 @@
             importToolStripMenuItem = new ToolStripMenuItem();
             importToolStripMenuItem1 = new ToolStripMenuItem();
             exportToolStripMenuItem = new ToolStripMenuItem();
-            chkrealtime = new CheckBox();
             checkBox14 = new CheckBox();
             checkBox15 = new CheckBox();
             splitContainer1 = new SplitContainer();
             splitContainer3 = new SplitContainer();
+            panel3 = new Panel();
+            chkrealtime = new CheckBox();
             splitContainer4 = new SplitContainer();
             groupBox1 = new GroupBox();
             panel1 = new Panel();
@@ -84,6 +85,7 @@
             splitContainer3.Panel1.SuspendLayout();
             splitContainer3.Panel2.SuspendLayout();
             splitContainer3.SuspendLayout();
+            panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer4).BeginInit();
             splitContainer4.Panel1.SuspendLayout();
             splitContainer4.Panel2.SuspendLayout();
@@ -121,7 +123,7 @@
             groupBox4.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point);
             groupBox4.Location = new Point(0, 0);
             groupBox4.Name = "groupBox4";
-            groupBox4.Size = new Size(303, 178);
+            groupBox4.Size = new Size(192, 154);
             groupBox4.TabIndex = 3;
             groupBox4.TabStop = false;
             groupBox4.Text = "Angular Velocity";
@@ -169,16 +171,16 @@
             groupBox2.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point);
             groupBox2.Location = new Point(0, 0);
             groupBox2.Name = "groupBox2";
-            groupBox2.Size = new Size(304, 218);
+            groupBox2.Size = new Size(192, 152);
             groupBox2.TabIndex = 1;
             groupBox2.TabStop = false;
             groupBox2.Text = "Azimuth - Rsv Top View";
             // 
             // panel2
             // 
-            panel2.Location = new Point(0, 88);
+            panel2.Location = new Point(3, 82);
             panel2.Name = "panel2";
-            panel2.Size = new Size(302, 43);
+            panel2.Size = new Size(284, 40);
             panel2.TabIndex = 5;
             panel2.Paint += panel2_Paint;
             // 
@@ -189,7 +191,7 @@
             chkA1.CheckState = CheckState.Checked;
             chkA1.Font = new Font("Segoe UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point);
             chkA1.ForeColor = Color.Green;
-            chkA1.Location = new Point(179, 154);
+            chkA1.Location = new Point(179, 147);
             chkA1.Name = "chkA1";
             chkA1.Size = new Size(55, 29);
             chkA1.TabIndex = 3;
@@ -204,7 +206,7 @@
             chkA3.CheckState = CheckState.Checked;
             chkA3.Font = new Font("Segoe UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point);
             chkA3.ForeColor = Color.Blue;
-            chkA3.Location = new Point(17, 154);
+            chkA3.Location = new Point(17, 147);
             chkA3.Name = "chkA3";
             chkA3.RightToLeft = RightToLeft.No;
             chkA3.Size = new Size(55, 29);
@@ -254,7 +256,7 @@
             groupBox3.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point);
             groupBox3.Location = new Point(0, 0);
             groupBox3.Name = "groupBox3";
-            groupBox3.Size = new Size(305, 179);
+            groupBox3.Size = new Size(191, 158);
             groupBox3.TabIndex = 2;
             groupBox3.TabStop = false;
             groupBox3.Text = "Linear Velocity";
@@ -294,7 +296,7 @@
             menuStrip1.Items.AddRange(new ToolStripItem[] { importToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(1317, 28);
+            menuStrip1.Size = new Size(1259, 28);
             menuStrip1.TabIndex = 2;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -310,26 +312,17 @@
             // 
             importToolStripMenuItem1.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
             importToolStripMenuItem1.Name = "importToolStripMenuItem1";
-            importToolStripMenuItem1.Size = new Size(117, 22);
+            importToolStripMenuItem1.Size = new Size(180, 22);
             importToolStripMenuItem1.Text = "import";
+            importToolStripMenuItem1.Click += importToolStripMenuItem1_Click;
             // 
             // exportToolStripMenuItem
             // 
             exportToolStripMenuItem.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point);
             exportToolStripMenuItem.Name = "exportToolStripMenuItem";
-            exportToolStripMenuItem.Size = new Size(117, 22);
+            exportToolStripMenuItem.Size = new Size(180, 22);
             exportToolStripMenuItem.Text = "export";
-            // 
-            // chkrealtime
-            // 
-            chkrealtime.AutoSize = true;
-            chkrealtime.Font = new Font("Segoe UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point);
-            chkrealtime.Location = new Point(1097, 31);
-            chkrealtime.Name = "chkrealtime";
-            chkrealtime.Size = new Size(175, 29);
-            chkrealtime.TabIndex = 3;
-            chkrealtime.Text = "Follow RealTime";
-            chkrealtime.UseVisualStyleBackColor = true;
+            exportToolStripMenuItem.Click += exportToolStripMenuItem_Click;
             // 
             // checkBox14
             // 
@@ -353,7 +346,8 @@
             // 
             // splitContainer1
             // 
-            splitContainer1.Location = new Point(0, 66);
+            splitContainer1.Dock = DockStyle.Fill;
+            splitContainer1.Location = new Point(0, 28);
             splitContainer1.Name = "splitContainer1";
             splitContainer1.Orientation = Orientation.Horizontal;
             // 
@@ -364,8 +358,8 @@
             // splitContainer1.Panel2
             // 
             splitContainer1.Panel2.Controls.Add(splitContainer2);
-            splitContainer1.Size = new Size(1314, 784);
-            splitContainer1.SplitterDistance = 419;
+            splitContainer1.Size = new Size(1259, 733);
+            splitContainer1.SplitterDistance = 413;
             splitContainer1.TabIndex = 4;
             // 
             // splitContainer3
@@ -377,19 +371,38 @@
             // 
             // splitContainer3.Panel1
             // 
+            splitContainer3.Panel1.Controls.Add(panel3);
             splitContainer3.Panel1.Controls.Add(splitContainer4);
             // 
             // splitContainer3.Panel2
             // 
             splitContainer3.Panel2.Controls.Add(splitContainer5);
-            splitContainer3.Size = new Size(1314, 419);
-            splitContainer3.SplitterDistance = 197;
+            splitContainer3.Size = new Size(1259, 413);
+            splitContainer3.SplitterDistance = 257;
             splitContainer3.TabIndex = 0;
+            // 
+            // panel3
+            // 
+            panel3.Controls.Add(chkrealtime);
+            panel3.Location = new Point(1049, 0);
+            panel3.Name = "panel3";
+            panel3.Size = new Size(207, 36);
+            panel3.TabIndex = 4;
+            // 
+            // chkrealtime
+            // 
+            chkrealtime.Font = new Font("Segoe UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point);
+            chkrealtime.Location = new Point(16, 6);
+            chkrealtime.Name = "chkrealtime";
+            chkrealtime.Size = new Size(175, 27);
+            chkrealtime.TabIndex = 3;
+            chkrealtime.Text = "Follow RealTime";
+            chkrealtime.UseVisualStyleBackColor = true;
             // 
             // splitContainer4
             // 
-            splitContainer4.Dock = DockStyle.Fill;
-            splitContainer4.Location = new Point(0, 0);
+            splitContainer4.Dock = DockStyle.Bottom;
+            splitContainer4.Location = new Point(0, 14);
             splitContainer4.Name = "splitContainer4";
             // 
             // splitContainer4.Panel1
@@ -399,12 +412,14 @@
             // splitContainer4.Panel2
             // 
             splitContainer4.Panel2.Controls.Add(chart1);
-            splitContainer4.Size = new Size(1314, 197);
-            splitContainer4.SplitterDistance = 305;
+            splitContainer4.Size = new Size(1259, 243);
+            splitContainer4.SplitterDistance = 193;
             splitContainer4.TabIndex = 0;
             // 
             // groupBox1
             // 
+            groupBox1.AutoSize = true;
+            groupBox1.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             groupBox1.Controls.Add(panel1);
             groupBox1.Controls.Add(chkT1);
             groupBox1.Controls.Add(chkT3);
@@ -414,16 +429,16 @@
             groupBox1.Font = new Font("Segoe UI Symbol", 9F, FontStyle.Bold, GraphicsUnit.Point);
             groupBox1.Location = new Point(0, 0);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(305, 197);
+            groupBox1.Size = new Size(193, 243);
             groupBox1.TabIndex = 0;
             groupBox1.TabStop = false;
             groupBox1.Text = "Thrust - Rsv Top View";
             // 
             // panel1
             // 
-            panel1.Location = new Point(0, 83);
+            panel1.Location = new Point(3, 79);
             panel1.Name = "panel1";
-            panel1.Size = new Size(305, 43);
+            panel1.Size = new Size(286, 51);
             panel1.TabIndex = 4;
             panel1.Paint += panel1_Paint;
             // 
@@ -489,16 +504,17 @@
             // 
             // chart1
             // 
-            chartArea1.Name = "ChartArea1";
-            chart1.ChartAreas.Add(chartArea1);
+            chartArea5.Name = "ChartArea1";
+            chart1.ChartAreas.Add(chartArea5);
             chart1.Dock = DockStyle.Fill;
-            legend1.Name = "Legend1";
-            chart1.Legends.Add(legend1);
+            legend5.Name = "Legend1";
+            chart1.Legends.Add(legend5);
             chart1.Location = new Point(0, 0);
             chart1.Margin = new Padding(0);
             chart1.Name = "chart1";
-            chart1.Size = new Size(1005, 197);
+            chart1.Size = new Size(1062, 243);
             chart1.TabIndex = 0;
+            chart1.Text = "chart1";
             // 
             // splitContainer5
             // 
@@ -513,20 +529,20 @@
             // splitContainer5.Panel2
             // 
             splitContainer5.Panel2.Controls.Add(chart2);
-            splitContainer5.Size = new Size(1314, 218);
-            splitContainer5.SplitterDistance = 304;
+            splitContainer5.Size = new Size(1259, 152);
+            splitContainer5.SplitterDistance = 192;
             splitContainer5.TabIndex = 0;
             // 
             // chart2
             // 
-            chartArea2.Name = "ChartArea1";
-            chart2.ChartAreas.Add(chartArea2);
+            chartArea6.Name = "ChartArea1";
+            chart2.ChartAreas.Add(chartArea6);
             chart2.Dock = DockStyle.Fill;
-            legend2.Name = "Legend1";
-            chart2.Legends.Add(legend2);
+            legend6.Name = "Legend1";
+            chart2.Legends.Add(legend6);
             chart2.Location = new Point(0, 0);
             chart2.Name = "chart2";
-            chart2.Size = new Size(1006, 218);
+            chart2.Size = new Size(1063, 152);
             chart2.TabIndex = 0;
             chart2.Text = "chart2";
             // 
@@ -544,8 +560,8 @@
             // splitContainer2.Panel2
             // 
             splitContainer2.Panel2.Controls.Add(splitContainer7);
-            splitContainer2.Size = new Size(1314, 361);
-            splitContainer2.SplitterDistance = 179;
+            splitContainer2.Size = new Size(1259, 316);
+            splitContainer2.SplitterDistance = 158;
             splitContainer2.TabIndex = 0;
             // 
             // splitContainer6
@@ -561,20 +577,20 @@
             // splitContainer6.Panel2
             // 
             splitContainer6.Panel2.Controls.Add(chart3);
-            splitContainer6.Size = new Size(1314, 179);
-            splitContainer6.SplitterDistance = 305;
+            splitContainer6.Size = new Size(1259, 158);
+            splitContainer6.SplitterDistance = 191;
             splitContainer6.TabIndex = 0;
             // 
             // chart3
             // 
-            chartArea3.Name = "ChartArea1";
-            chart3.ChartAreas.Add(chartArea3);
+            chartArea7.Name = "ChartArea1";
+            chart3.ChartAreas.Add(chartArea7);
             chart3.Dock = DockStyle.Fill;
-            legend3.Name = "Legend1";
-            chart3.Legends.Add(legend3);
+            legend7.Name = "Legend1";
+            chart3.Legends.Add(legend7);
             chart3.Location = new Point(0, 0);
             chart3.Name = "chart3";
-            chart3.Size = new Size(1005, 179);
+            chart3.Size = new Size(1064, 158);
             chart3.TabIndex = 0;
             chart3.Text = "chart3";
             // 
@@ -591,20 +607,20 @@
             // splitContainer7.Panel2
             // 
             splitContainer7.Panel2.Controls.Add(chart4);
-            splitContainer7.Size = new Size(1314, 178);
-            splitContainer7.SplitterDistance = 303;
+            splitContainer7.Size = new Size(1259, 154);
+            splitContainer7.SplitterDistance = 192;
             splitContainer7.TabIndex = 0;
             // 
             // chart4
             // 
-            chartArea4.Name = "ChartArea1";
-            chart4.ChartAreas.Add(chartArea4);
+            chartArea8.Name = "ChartArea1";
+            chart4.ChartAreas.Add(chartArea8);
             chart4.Dock = DockStyle.Fill;
-            legend4.Name = "Legend1";
-            chart4.Legends.Add(legend4);
+            legend8.Name = "Legend1";
+            chart4.Legends.Add(legend8);
             chart4.Location = new Point(0, 0);
             chart4.Name = "chart4";
-            chart4.Size = new Size(1007, 178);
+            chart4.Size = new Size(1063, 154);
             chart4.TabIndex = 0;
             chart4.Text = "chart4";
             // 
@@ -612,13 +628,10 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            AutoSize = true;
-            AutoSizeMode = AutoSizeMode.GrowAndShrink;
             Controls.Add(splitContainer1);
-            Controls.Add(chkrealtime);
             Controls.Add(menuStrip1);
             Name = "ucGraphs";
-            Size = new Size(1317, 853);
+            Size = new Size(1259, 761);
             groupBox4.ResumeLayout(false);
             groupBox4.PerformLayout();
             groupBox2.ResumeLayout(false);
@@ -635,7 +648,9 @@
             splitContainer3.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer3).EndInit();
             splitContainer3.ResumeLayout(false);
+            panel3.ResumeLayout(false);
             splitContainer4.Panel1.ResumeLayout(false);
+            splitContainer4.Panel1.PerformLayout();
             splitContainer4.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer4).EndInit();
             splitContainer4.ResumeLayout(false);
@@ -670,10 +685,6 @@
 
         #endregion
         private MenuStrip menuStrip1;
-        private ToolStripMenuItem importToolStripMenuItem;
-        private ToolStripMenuItem importToolStripMenuItem1;
-        private ToolStripMenuItem exportToolStripMenuItem;
-        private CheckBox chkrealtime;
         private CheckBox chkT1;
         private CheckBox chkT3;
         private GroupBox groupBox2;
@@ -709,5 +720,10 @@
         private System.Windows.Forms.DataVisualization.Charting.Chart chart2;
         private System.Windows.Forms.DataVisualization.Charting.Chart chart3;
         private System.Windows.Forms.DataVisualization.Charting.Chart chart4;
+        private ToolStripMenuItem importToolStripMenuItem;
+        private ToolStripMenuItem importToolStripMenuItem1;
+        private ToolStripMenuItem exportToolStripMenuItem;
+        private CheckBox chkrealtime;
+        private Panel panel3;
     }
 }

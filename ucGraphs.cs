@@ -1,4 +1,6 @@
 ﻿using Common.Classes;
+using Microsoft.VisualBasic;
+using OfficeOpenXml;
 using SlimDX.Direct3D9;
 using System;
 using System.Collections.Concurrent;
@@ -6,16 +8,20 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
 using CheckBox = System.Windows.Forms.CheckBox;
 using GroupBox = System.Windows.Forms.GroupBox;
+using LicenseContext = OfficeOpenXml.LicenseContext;
 using Timer = System.Windows.Forms.Timer;
+using ToolTip = System.Windows.Forms.ToolTip;
 
 namespace ThrusterTest.UserControls
 {
@@ -25,21 +31,123 @@ namespace ThrusterTest.UserControls
         private Random random = new Random();
         private Timer timer = new Timer();
         private ConcurrentDictionary<string, ConcurrentDictionary<string, Series>> chartSeriesDictionary = new ConcurrentDictionary<string, ConcurrentDictionary<string, Series>>();
-        private double mouseX;
+        private int globalMouseX;
+        private Panel Verticalline;
+        private Panel Verticalline1;
+        private Panel Verticalline2;
+        private Panel Verticalline3;
 
         public ucGraphs()
         {
             InitializeComponent();
             Dock = DockStyle.Fill;
             InitializeCharts();
-            //PopulateInitialData();
-            //InitializeAllCharts();
             InitializeVerticalLine();
             InizializeTimer();
             CreateChartColors();
             accessDic();
 
+            chart1.MouseWheel += Chart_MouseWheel;
+            chart2.MouseWheel += Chart_MouseWheel;
+            chart3.MouseWheel += Chart_MouseWheel;
+            chart4.MouseWheel += Chart_MouseWheel;
+
+            foreach (var chartName in chartSeriesDictionary.Keys)
+            {
+                var chart = Controls.Find(chartName, true).FirstOrDefault() as Chart;
+                if (chart != null)
+                {
+                    foreach (var area in chart.ChartAreas)
+                    {
+                        area.CursorX.IsUserSelectionEnabled = true;
+                        area.CursorY.IsUserSelectionEnabled = true;
+                    }
+                }
+            }
+
+
+            chart1.MouseDown += Chart_MouseDown;
+            chart2.MouseDown += Chart_MouseDown;
+            chart3.MouseDown += Chart_MouseDown;
+            chart4.MouseDown += Chart_MouseDown;
+
+            panel3.Anchor = (AnchorStyles.Top | AnchorStyles.Right);
+
+            chart1.MouseMove += Chart_MouseMove;
+            chart2.MouseMove += Chart_MouseMove;
+            chart3.MouseMove += Chart_MouseMove;
+            chart4.MouseMove += Chart_MouseMove;
         }
+
+
+        private void Chart_MouseWheel(object? sender, MouseEventArgs e)
+        {
+            Chart sourceChart = sender as Chart;
+
+            foreach (var chartName in chartSeriesDictionary.Keys)
+            {
+                Chart chart = Controls.Find(chartName, true).FirstOrDefault() as Chart;
+
+                if (chart != null)
+                {
+                    var xAxis = chart.ChartAreas[0].AxisX;
+                    var yAxis = chart.ChartAreas[0].AxisY;
+
+                    try
+                    {
+                        if (e.Delta < 0) // Zoom out
+                        {
+                            xAxis.ScaleView.ZoomReset();
+                            yAxis.ScaleView.ZoomReset();
+                        }
+                        else if (e.Delta > 0) // Zoom in
+                        {
+                            // Calculate the current visible range
+                            double xRange = xAxis.ScaleView.ViewMaximum - xAxis.ScaleView.ViewMinimum;
+                            double yRange = yAxis.ScaleView.ViewMaximum - yAxis.ScaleView.ViewMinimum;
+
+                            double Range = xRange + yRange;
+
+                            // Calculate the new zoom range based on the source chart's zoom
+                            double newRange = Math.Round(1.1 * Range / 2); // Adjust the multiplier as needed
+
+                            // Calculate the center of the zoom
+                            int centerX = (int)Math.Round(xAxis.PixelPositionToValue(e.Location.X));
+                            int centerY = (int)Math.Round(yAxis.PixelPositionToValue(e.Location.Y));
+
+                            // Calculate the new minimum and maximum values for X and Y axes
+                            int newXMin = centerX - (int)(newRange / 2);
+                            int newXMax = centerX + (int)(newRange / 2);
+                            int newYMin = centerY - (int)(newRange / 2);
+                            int newYMax = centerY + (int)(newRange / 2);
+
+                            // Zoom all charts to the new range
+                            foreach (var otherChartName in chartSeriesDictionary.Keys)
+                            {
+                                Chart otherChart = Controls.Find(otherChartName, true).FirstOrDefault() as Chart;
+                                if (otherChart != null)
+                                {
+                                    otherChart.ChartAreas[0].AxisX.ScaleView.Zoom(newXMin, newXMax);
+
+                                    // Apply the same y-axis range to all charts
+                                    otherChart.ChartAreas[0].AxisY.ScaleView.Zoom(newYMin, newYMax);
+
+                                    UpdateVerticalLinePosition(otherChart, globalMouseX);
+
+
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any exceptions
+                        Console.WriteLine("Error: " + ex.Message);
+                    }
+                }
+            }
+        }
+
 
 
         private void panel1_Paint(object sender, PaintEventArgs e)
@@ -100,8 +208,8 @@ namespace ThrusterTest.UserControls
 
             AddSeries("chart1", new string[] { "T1", "T2", "T3", "T4" });
             AddSeries("chart2", new string[] { "A1", "A2", "A3", "A4" });
-            AddSeries("chart3", new string[] { "Actual", "Desired" });
-            AddSeries("chart4", new string[] { "Actual1", "Desired1" });
+            AddSeries("chart3", new string[] { "Actual Linear Velocity", "Desired Linear Velocity" });
+            AddSeries("chart4", new string[] { "Actual Angular Velocity", "Desired Angular Velocity" });
 
 
             SetAxisRanges("chart1", -100, 100); // Y1 range for chart1
@@ -109,107 +217,195 @@ namespace ThrusterTest.UserControls
             SetAutoScale("chart3");
             SetAutoScale("chart4");
 
-        }
-
-        private Panel Verticalline;
-        private Panel Verticalline1;
-        private Panel Verticalline2;
-        private Panel Verticalline3;
-        private void InitializeVerticalLine()
-        {
-
-            // Create a Panel for the vertical line
-            Verticalline = new Panel
-            {
-                Width = 2, // Adjust the width of the line as needed
-                Height = chart1.ClientRectangle.Height,
-                BackColor = System.Drawing.Color.Red,
-                Location = new System.Drawing.Point(0, 0) // Initial position of the line
-            };
-            Verticalline1 = new Panel
-            {
-                Width = 2, // Adjust the width of the line as needed
-                Height = chart1.ClientRectangle.Height,
-                BackColor = System.Drawing.Color.Red,
-                Location = new System.Drawing.Point(0, 0) // Initial position of the line
-            };
-
-
-            Verticalline2 = new Panel
-            {
-                Width = 2, // Adjust the width of the line as needed
-                Height = chart1.ClientRectangle.Height,
-                BackColor = System.Drawing.Color.Red,
-                Location = new System.Drawing.Point(0, 0) // Initial position of the line
-            };
-
-
-            Verticalline3 = new Panel
-            {
-                Width = 2, // Adjust the width of the line as needed
-                Height = chart1.ClientRectangle.Height,
-                BackColor = System.Drawing.Color.Red,
-                Location = new System.Drawing.Point(0, 0) // Initial position of the line
-            };
-
-            // Add the vertical line to the form
-            chart1.Controls.Add(Verticalline);
-            chart2.Controls.Add(Verticalline1);
-            chart3.Controls.Add(Verticalline2);
-            chart4.Controls.Add(Verticalline3);
-
-            chart1.MouseMove += Chart_MouseMove;
-            chart2.MouseMove += Chart_MouseMove;
-            chart3.MouseMove += Chart_MouseMove;
-            chart4.MouseMove += Chart_MouseMove;
-
-        }
-
-        private void Chart_MouseMove(object? sender, MouseEventArgs e)
-        {
-
-            Chart chart = (Chart)sender;
 
             foreach (var chartName in chartSeriesDictionary.Keys)
             {
-                chart = Controls.Find(chartName, true).FirstOrDefault() as Chart;
-                if (chart != null && chart.ClientRectangle.Contains(e.Location))
+                var chart = Controls.Find(chartName, true).FirstOrDefault() as Chart;
+                if (chart != null)
                 {
-                    // Calculate the X position relative to the chart
-                    int mouseX = e.Location.X - chart.Location.X;
-
-                    // Calculate the maximum and minimum X positions within the chart
-                    int maxX = chart.ClientSize.Width - Verticalline.Width;
-                    int minX = 0;
-
-                    // Ensure the mouseX stays within the bounds of the chart
-                    mouseX = Math.Max(minX, Math.Min(maxX, mouseX));
-
-                    // Update the position of the vertical line within the chart
-                    Verticalline.Location = new Point(mouseX - (Verticalline.Width / 2), 0);
-                    Verticalline.Visible = true; // Show the vertical line
-                    Verticalline.BringToFront();
-                    Verticalline1.Location = new Point(mouseX - (Verticalline.Width / 2), 0);
-                    Verticalline1.Visible = true; // Show the vertical line
-                    Verticalline1.BringToFront();
-                    Verticalline2.Location = new Point(mouseX - (Verticalline.Width / 2), 0);
-                    Verticalline2.Visible = true; // Show the vertical line
-                    Verticalline2.BringToFront();
-                    Verticalline3.Location = new Point(mouseX - (Verticalline.Width / 2), 0);
-                    Verticalline3.Visible = true; // Show the vertical line
-                    Verticalline3.BringToFront();
-
+                    chart.ChartAreas[0].CursorX.IsUserSelectionEnabled = true;
+                    chart.ChartAreas[0].CursorY.IsUserSelectionEnabled = true;
+                    chart.ChartAreas[0].AxisX.ScaleView.Zoomable = true;
+                    chart.ChartAreas[0].AxisY.ScaleView.Zoomable = true;
+                    chart.ChartAreas[0].CursorX.AutoScroll = true;
+                    chart.ChartAreas[0].CursorX.IsUserSelectionEnabled = true;
                 }
-                else
+            }
+
+        }
+
+        private void Chart_MouseDown(object? sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left) // Check if the left mouse button was clicked
+            {
+                Chart clickedChart = sender as Chart;
+                if (clickedChart != null)
                 {
-                    // Hide the vertical line if the mouse is not over any chart
-                    Verticalline.Visible = false;
-                    Verticalline1.Visible = false;
-                    Verticalline2.Visible = false;
-                    Verticalline3.Visible = false;
+                    // Convert the mouse position to a point in the chart's coordinates
+                    HitTestResult result = clickedChart.HitTest(e.X, e.Y);
+
+                    if (result.ChartElementType == ChartElementType.DataPoint)
+                    {
+                        // Get the series and data point index
+                        Series series = result.Series;
+                        int pointIndex = result.PointIndex;
+
+                        // Get the X value of the clicked point
+                        double xValue = series.Points[pointIndex].XValue;
+
+                        // Build the tooltip text
+                        StringBuilder tooltipText = new StringBuilder();
+
+                        // Add X value to the tooltip text
+                        tooltipText.AppendLine($"X Value: {xValue}");
+
+                        // Define the order of series
+                        string[] seriesOrder = { "T1", "T2", "T3", "T4", "A1", "A2", "A3", "A4", "Actual Linear Velocity", "Desired Linear Velocity", "Actual Angular Velocity", "Desired Angular Velocity" };
+
+                        // Iterate through the series order
+                        foreach (string seriesName in seriesOrder)
+                        {
+                            foreach (string chartName in chartSeriesDictionary.Keys)
+                            {
+                                Chart chart = Controls.Find(chartName, true).FirstOrDefault() as Chart;
+                                if (chart != null)
+                                {
+                                    if (chart.Series.FindByName(seriesName) != null)
+                                    {
+                                        Series s = chart.Series.FindByName(seriesName);
+
+                                        // Find the point in 's' that has the same X value as the clicked point
+                                        DataPoint closestPoint = s.Points.OrderBy(p => Math.Abs(p.XValue - xValue)).First();
+
+                                        // Add series name and corresponding Y value to the tooltip text
+                                        tooltipText.AppendLine($"  {s.Name}: Y={closestPoint.YValues[0]}");
+                                    }
+                                }
+                            }
+                        }
+
+                        // Show tooltip
+                        ToolTip tooltip = new ToolTip();
+                        tooltip.Show(tooltipText.ToString(), clickedChart, e.Location.X, e.Location.Y - 15, 2000); // Adjust as needed
+                    }
                 }
             }
         }
+
+
+
+
+
+
+
+
+        private void InitializeVerticalLine()
+        {
+            InitializeLineForChart(chart1, ref Verticalline);
+            InitializeLineForChart(chart2, ref Verticalline1);
+            InitializeLineForChart(chart3, ref Verticalline2);
+            InitializeLineForChart(chart4, ref Verticalline3);
+
+        }
+
+        private void InitializeLineForChart(Chart chart, ref Panel line)
+        {
+            line = new Panel
+            {
+                Width = 2,
+                Height = (int)GetPlotAreaRectangle(chart).Height, // Set initial height based on plot area
+                BackColor = Color.Red,
+                Location = new Point(0, 0) // Initial position
+            };
+
+            chart.Controls.Add(line); // Add line to chart
+        }
+        private void Chart_MouseMove(object sender, MouseEventArgs e)
+        {
+            Chart chart = sender as Chart;
+
+            if (chart != null)
+            {
+                // Convert mouse position to chart area position
+                Point chartAreaPosition = e.Location;
+
+                // Calculate the plot area bounds
+                RectangleF plotAreaRect = GetPlotAreaRectangle(chart);
+
+                if (plotAreaRect.Contains(chartAreaPosition))
+                {
+                    // Adjust the mouse X position to be within the plot area bounds
+                    globalMouseX = (int)(chartAreaPosition.X - plotAreaRect.X);
+                    UpdateVerticalLinesInAllCharts();
+                }
+            }
+        }
+
+
+        private void UpdateVerticalLinesInAllCharts()
+        {
+            // Update the vertical lines for all charts based on the global mouse X position
+            foreach (var chartName in chartSeriesDictionary.Keys)
+            {
+                Chart chart = Controls.Find(chartName, true).FirstOrDefault() as Chart;
+                if (chart != null)
+                {
+                    UpdateVerticalLinePosition(chart, globalMouseX);
+                }
+            }
+        }
+
+        private void UpdateVerticalLinePosition(Chart chart, int mouseX)
+        {
+            Panel verticalLine = FindVerticalLineForChart(chart);
+            if (verticalLine == null) return;
+
+            // Calculate the plot area's bounds
+            RectangleF plotAreaRect = GetPlotAreaRectangle(chart);
+
+            // Ensure the vertical line's X position is within the plot area bounds
+            int lineX = Math.Max(0, Math.Min((int)plotAreaRect.Width, mouseX));
+
+            // Update the vertical line's position relative to the plot area
+            int verticalLineX = (int)plotAreaRect.X + lineX;
+
+            // Update the vertical line's position and make it visible within the plot area
+            verticalLine.Location = new Point(verticalLineX - (verticalLine.Width / 2), (int)plotAreaRect.Y);
+            verticalLine.Height = (int)plotAreaRect.Height;
+            verticalLine.Visible = true;
+        }
+
+        private RectangleF GetPlotAreaRectangle(Chart chart)
+        {
+            ChartArea chartArea = chart.ChartAreas[0];
+            RectangleF chartAreaRect = chart.ClientRectangle;
+
+            float plotX = chartAreaRect.Left + (chartAreaRect.Width * chartArea.InnerPlotPosition.X / 100f);
+            float plotY = chartAreaRect.Top + (chartAreaRect.Height * chartArea.InnerPlotPosition.Y / 100f);
+            float plotWidth = chartAreaRect.Width * chartArea.InnerPlotPosition.Width / 100f;
+            float plotHeight = chartAreaRect.Height * chartArea.InnerPlotPosition.Height / 100f;
+
+            return new RectangleF(plotX, plotY, plotWidth, plotHeight);
+        }
+
+
+        private Panel FindVerticalLineForChart(Chart chart)
+        {
+            switch (chart.Name)
+            {
+                case "chart1":
+                    return Verticalline;
+                case "chart2":
+                    return Verticalline1;
+                case "chart3":
+                    return Verticalline2;
+                case "chart4":
+                    return Verticalline3;
+                default:
+                    return null;
+            }
+        }
+
 
         private void AddSeries(string chartName, string[] seriesNames)
         {
@@ -295,7 +491,7 @@ namespace ThrusterTest.UserControls
 
         private void InizializeTimer()
         {
-            timer.Interval = 1000;
+            timer.Interval = 100;
             timer.Tick += Timer_Tick;
             timer.Start();
         }
@@ -337,19 +533,36 @@ namespace ThrusterTest.UserControls
 
         private void UpdateChart(string chartName, string seriesName, double newValue, double xInterval)
         {
-            var series = chartSeriesDictionary[chartName][seriesName];
+            try
+            {
+                if (chartSeriesDictionary.ContainsKey(chartName) && chartSeriesDictionary[chartName].ContainsKey(seriesName))
+                {
+                    var series = chartSeriesDictionary[chartName][seriesName];
 
-            double maxX = series.Points.Count > 0 ? series.Points.Max(p => p.XValue) : 0;
+                    double maxX = series.Points.Count > 0 ? series.Points.Max(p => p.XValue) : 0;
 
-            double newX = maxX + xInterval;
+                    double newX = maxX + xInterval;
 
-            series.Points.AddXY(newX + 1, newValue);
+                    series.Points.AddXY(newX + 1, newValue);
+                }
+                else
+                {
+                    // Handle the case where the chartName or seriesName is not found in the dictionary
+                    // You can log an error, throw a specific exception, or handle it based on your requirements
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception appropriately, such as logging the error or rethrowing it
+                throw;
+            }
         }
+
 
         private void CreateChartColors()
         {
             Dictionary<string, Dictionary<string, Color[]>> chartColors = new Dictionary<string, Dictionary<string, Color[]>>()
-    {
+            {
         {"chart1", new Dictionary<string, Color[]>
             {
                 {"T1", new Color[] { Color.Green }},
@@ -360,24 +573,24 @@ namespace ThrusterTest.UserControls
         },
         {"chart2", new Dictionary<string, Color[]>
             {
-                {"A1", new Color[] { Color.Blue }},
+                {"A1", new Color[] { Color.Green }},
                 {"A2", new Color[] { Color.Red }},
-                {"A3", new Color[] { Color.Green }},
+                {"A3", new Color[] { Color.Blue }},
                 {"A4", new Color[] { Color.LightGreen }}
             }
         },
         {"chart3", new Dictionary<string, Color[]>
             {
-                {"Actual", new Color[] { Color.Blue }},
-                {"Desired", new Color[] { Color.Red }}
+                {"Actual Linear Velocity", new Color[] { Color.Blue }},
+                {"Desired Linear Velocity", new Color[] { Color.Red }}
             }
         },
         {"chart4", new Dictionary<string, Color[]>
             {
-                {"Actual1", new Color[] { Color.Blue }},
-                {"Desired1", new Color[] { Color.Red }}
+                 {"Actual Angular Velocity", new Color[] { Color.Blue }},
+                 {"Desired Angular Velocity", new Color[] { Color.Red }}
             }
-        }
+}
     };
 
             foreach (var chartName in chartSeriesDictionary.Keys)
@@ -550,7 +763,7 @@ namespace ThrusterTest.UserControls
 
         private void chkActual_CheckedChanged(object sender, EventArgs e)
         {
-            var series = chart3.Series.FirstOrDefault(s => s.Name == "Actual");
+            var series = chart3.Series.FirstOrDefault(s => s.Name == "Actual Linear Velocity");
             if (series != null)
             {
                 series.Enabled = chkActual.Checked;
@@ -564,7 +777,7 @@ namespace ThrusterTest.UserControls
 
         private void chkDesired_CheckedChanged(object sender, EventArgs e)
         {
-            var series = chart3.Series.FirstOrDefault(s => s.Name == "Desired");
+            var series = chart3.Series.FirstOrDefault(s => s.Name == "Desired Linear Velocity");
             if (series != null)
             {
                 series.Enabled = chkDesired.Checked;
@@ -575,7 +788,7 @@ namespace ThrusterTest.UserControls
 
         private void chkActual1_CheckedChanged(object sender, EventArgs e)
         {
-            var series = chart4.Series.FirstOrDefault(s => s.Name == "Actual1");
+            var series = chart4.Series.FirstOrDefault(s => s.Name == "Actual Angular Velocity");
             if (series != null)
             {
                 series.Enabled = chkActual1.Checked;
@@ -589,7 +802,7 @@ namespace ThrusterTest.UserControls
 
         private void chkDesired1_CheckedChanged(object sender, EventArgs e)
         {
-            var series = chart4.Series.FirstOrDefault(s => s.Name == "Desired1");
+            var series = chart4.Series.FirstOrDefault(s => s.Name == "Desired Angular Velocity");
             if (series != null)
             {
                 series.Enabled = chkDesired1.Checked;
@@ -625,8 +838,143 @@ namespace ThrusterTest.UserControls
             }
         }
 
+        private void importToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            // Set EPPlus license context
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            // Create a new Excel package
+            using (ExcelPackage package = new ExcelPackage())
+            {
+                // Prompt user to select folder
+                using (FolderBrowserDialog folderDialog = new FolderBrowserDialog())
+                {
+                    folderDialog.Description = "Select folder to save Excel file";
+                    DialogResult folderResult = folderDialog.ShowDialog();
+
+                    if (folderResult == DialogResult.OK && !string.IsNullOrWhiteSpace(folderDialog.SelectedPath))
+                    {
+                        // Get the file name from the user
+                        string fileName = Interaction.InputBox("Enter file name (without extension):", "Save Excel File", "Chart_Data");
+
+                        // If user entered a file name
+                        if (!string.IsNullOrWhiteSpace(fileName))
+                        {
+                            // Save Excel file
+                            FileInfo file = new FileInfo(Path.Combine(folderDialog.SelectedPath, fileName + ".xlsx"));
+
+                            // Add a worksheet to the workbook
+                            ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Chart Data");
+
+                            // Initialize row and column indices
+                            int rowIndex = 1;
+                            int columnIndex = 1;
+
+                            // Write data for each chart and its series
+                            foreach (var chartName in chartSeriesDictionary.Keys)
+                            {
+                                Chart chart = Controls.Find(chartName, true).FirstOrDefault() as Chart;
+                                if (chart != null)
+                                {
+                                    // Write chart name
+                                    worksheet.Cells[rowIndex, columnIndex].Value = chartName;
+                                    rowIndex++;
+
+                                    // Track the maximum number of data points in any series for this chart
+                                    int maxDataPoints = chart.Series.Max(s => s.Points.Count);
+
+                                    // Write series names horizontally
+                                    foreach (var series in chart.Series)
+                                    {
+                                        worksheet.Cells[rowIndex, columnIndex].Value = series.Name;
+                                        columnIndex++;
+                                    }
+
+                                    rowIndex++;
+
+                                    // Write data vertically
+                                    for (int i = 0; i < maxDataPoints; i++)
+                                    {
+                                        columnIndex = 1; // Reset column index for each row of data
+
+                                        foreach (var series in chart.Series)
+                                        {
+                                            if (i < series.Points.Count)
+                                            {
+                                                // Write X value
+                                                worksheet.Cells[rowIndex, columnIndex].Value = series.Points[i].XValue;
+                                                columnIndex++;
+
+                                                // Write Y value
+                                                worksheet.Cells[rowIndex, columnIndex].Value = series.Points[i].YValues[0]; // Assuming single Y value
+                                                columnIndex++;
+                                            }
+                                            else
+                                            {
+                                                // If series doesn't have data for this index, leave the cells blank
+                                                columnIndex += 2; // Move to next series
+                                            }
+                                        }
+
+                                        rowIndex++;
+                                    }
+
+                                    // Add a blank row between charts
+                                    rowIndex++;
+                                    columnIndex = 1; // Reset column index for next chart
+                                }
+                            }
+
+                            // Save Excel package
+                            package.SaveAs(file);
+                            MessageBox.Show("Data saved to Excel successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                    }
+                }
+            }
+
+
+
+
+
+
+
+        }
+
+
+        private void exportToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //private bool IsCheckboxChecked(string seriesName)
